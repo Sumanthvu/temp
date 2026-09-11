@@ -1,26 +1,225 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #fce4ec 0%, #fdf6f0 35%, #fce4ec 65%, #f8bbd0 100%);
+  background-attachment: fixed;
+}
+
+/* ─── Keyframes ───────────────────────────────────────────── */
+@keyframes petalsFloat {
+  0%   { transform: translateY(-20px) rotate(0deg);   opacity: 0; }
+  8%   { opacity: 0.85; }
+  92%  { opacity: 0.65; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+/* ─── Utility classes ─────────────────────────────────────── */
+.font-playfair { font-family: 'Playfair Display', serif; }
+.font-dancing  { font-family: 'Dancing Script', cursive; }
+.font-inter    { font-family: 'Inter', sans-serif; }
+.font-crimson  { font-family: 'Crimson Pro', serif; }
+
+.gradient-text {
+  background: linear-gradient(135deg, #e91e63, #f06292, #ad1457);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+/* ─── Glass card ──────────────────────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 8px 40px rgba(233, 30, 99, 0.10),
+    0 2px 12px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* ─── Buttons ─────────────────────────────────────────────── */
+.btn-yes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #e91e63, #f06292);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 15px 52px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 6px 24px rgba(233, 30, 99, 0.38);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn-yes:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 32px rgba(233, 30, 99, 0.50);
+}
+
+.btn-yes:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.btn-no {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.88);
+  color: #e91e63;
+  border: 2px solid #f48fb1;
+  border-radius: 50px;
+  padding: 13px 40px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  position: fixed;
+  white-space: nowrap;
+  user-select: none;
+  box-shadow: 0 4px 16px rgba(233, 30, 99, 0.15);
+  z-index: 9999;
+  pointer-events: all;
+}
+
+/* ─── Rating buttons ──────────────────────────────────────── */
+.rating-btn {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid #f48fb1;
+  background: rgba(255, 255, 255, 0.85);
+  color: #e91e63;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 2px 8px rgba(233, 30, 99, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rating-btn:hover {
+  transform: scale(1.22) translateY(-4px);
+  background: linear-gradient(135deg, #e91e63, #f06292);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 8px 22px rgba(233, 30, 99, 0.42);
+}
+
+/* ─── Toast ───────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.97);
+  border: 1.5px solid #f48fb1;
+  border-radius: 24px;
+  padding: 14px 28px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: #c2185b;
+  font-weight: 500;
+  box-shadow: 0 8px 32px rgba(233, 30, 99, 0.18);
+  z-index: 1000;
+  text-align: center;
+  max-width: min(400px, 90vw);
+  backdrop-filter: blur(12px);
+}
+
+/* ─── Image grid ──────────────────────────────────────────── */
+.image-grid-item {
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.25s ease;
+  position: relative;
+  aspect-ratio: 1;
+  border: 3px solid transparent;
+}
+
+.image-grid-item:hover {
+  transform: scale(1.04);
+  box-shadow: 0 8px 24px rgba(233, 30, 99, 0.22);
+}
+
+.image-grid-item.selected {
+  border-color: #e91e63;
+  box-shadow: 0 0 0 2px rgba(233, 30, 99, 0.28),
+              0 8px 24px rgba(233, 30, 99, 0.28);
+}
+
+/* ─── Paper / letter ──────────────────────────────────────── */
+.paper-texture {
+  background-color: #fffdf9;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 31px,
+      rgba(233, 30, 99, 0.06) 31px,
+      rgba(233, 30, 99, 0.06) 32px
+    );
+}
+
+/* ─── Floating petals ─────────────────────────────────────── */
+.petal {
+  position: fixed;
+  top: -60px;
+  animation: petalsFloat linear infinite;
+  pointer-events: none;
+  z-index: 0;
+  user-select: none;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar             { width: 5px; }
+::-webkit-scrollbar-track       { background: rgba(252, 228, 236, 0.4); }
+::-webkit-scrollbar-thumb       { background: #f48fb1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #e91e63; }
+
+/* ─── Mobile tweaks ───────────────────────────────────────── */
+@media (max-width: 480px) {
+  .btn-yes   { padding: 13px 36px; font-size: 0.98rem; }
+  .btn-no    { padding: 11px 28px; font-size: 0.95rem; }
+  .rating-btn { width: 44px; height: 44px; font-size: 0.9rem; }
 }
