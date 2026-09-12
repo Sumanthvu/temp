@@ -8,12 +8,12 @@ export default function FloatingOrbs() {
 
   useEffect(() => {
     const generateOrbs = () => {
-      return Array.from({ length: 15 }).map((_, i) => ({
+      return Array.from({ length: 8 }).map((_, i) => ({
         id: i,
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
-        size: 20 + Math.random() * 80,
-        duration: 15 + Math.random() * 20,
+        size: 30 + Math.random() * 60,
+        duration: 20 + Math.random() * 20,
         delay: Math.random() * 5,
       }));
     };
@@ -21,7 +21,7 @@ export default function FloatingOrbs() {
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[1] overflow-hidden mix-blend-screen opacity-60">
+    <div className="fixed inset-0 pointer-events-none z-[1] overflow-hidden opacity-40">
       {orbs.map((orb) => (
         <motion.div
           key={orb.id}
@@ -33,13 +33,13 @@ export default function FloatingOrbs() {
             height: orb.size,
             borderRadius: '50%',
             background: 'radial-gradient(circle, rgba(255,200,220,0.8) 0%, rgba(255,100,150,0) 70%)',
-            filter: 'blur(10px)',
+            willChange: 'transform, opacity'
           }}
           animate={{
-            y: [orb.y, orb.y - 300 - Math.random() * 200, orb.y],
-            x: [orb.x, orb.x + (Math.random() > 0.5 ? 100 : -100), orb.x],
-            scale: [1, 1.5, 1],
-            opacity: [0, 0.5, 0]
+            y: [orb.y, orb.y - 200 - Math.random() * 100, orb.y],
+            x: [orb.x, orb.x + (Math.random() > 0.5 ? 50 : -50), orb.x],
+            scale: [1, 1.2, 1],
+            opacity: [0, 0.4, 0]
           }}
           transition={{
             duration: orb.duration,

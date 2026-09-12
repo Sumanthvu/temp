@@ -20,65 +20,13 @@ export default function Home() {
     <main style={{ position: 'relative', minHeight: '100vh', overflowX: 'hidden' }}>
       <CustomCursor />
       
-      {/* ── Dynamic Mesh Gradient Background ── */}
+      {/* ── High-Performance Ambient Background ── */}
       <div
-        aria-hidden="true"
+        className="fixed inset-0 pointer-events-none z-0"
         style={{
-          position: 'fixed',
-          inset: 0,
-          pointerEvents: 'none',
-          zIndex: 0,
-          background: 'linear-gradient(135deg, #fce4ec 0%, #fdf6f0 50%, #fce4ec 100%)',
+          background: 'radial-gradient(ellipse at top left, rgba(244,143,177,0.4) 0%, transparent 60%), radial-gradient(ellipse at bottom right, rgba(206,147,216,0.3) 0%, transparent 60%), linear-gradient(135deg, #fce4ec 0%, #fdf6f0 50%, #fce4ec 100%)',
         }}
-      >
-        <motion.div
-          style={{
-            position: 'absolute',
-            top: '-20%', left: '-10%',
-            width: '60vw', height: '60vw',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(244,143,177,0.4) 0%, transparent 60%)',
-            filter: 'blur(60px)',
-          }}
-          animate={{
-            x: [0, 100, 0],
-            y: [0, 50, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          style={{
-            position: 'absolute',
-            bottom: '-20%', right: '-10%',
-            width: '70vw', height: '70vw',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(206,147,216,0.3) 0%, transparent 60%)',
-            filter: 'blur(80px)',
-          }}
-          animate={{
-            x: [0, -100, 0],
-            y: [0, -50, 0],
-            scale: [1, 1.3, 1],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        />
-        <motion.div
-          style={{
-            position: 'absolute',
-            top: '40%', left: '40%',
-            width: '40vw', height: '40vw',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255,171,145,0.2) 0%, transparent 60%)',
-            filter: 'blur(50px)',
-          }}
-          animate={{
-            x: [0, 50, -50, 0],
-            y: [0, -50, 50, 0],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      </div>
+      />
 
       {/* ── Floating petals ── */}
       <FloatingPetals />

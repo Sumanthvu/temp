@@ -1,15 +1,26 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 export default function CustomCursor() {
-  const [mousePosition, setMousePosition] = useState({ x: -100, y: -100 });
   const [isHovering, setIsHovering] = useState(false);
+  
+  // Use MotionValues to bypass React state and avoid re-renders for 60fps tracking
+  const mouseX = useMotionValue(-100);
+  const mouseY = useMotionValue(-100);
+
+  // Smooth springs
+  const smoothX = useSpring(mouseX, { stiffness: 1000, damping: 40, mass: 0.1 });
+  const smoothY = useSpring(mouseY, { stiffness: 1000, damping: 40, mass: 0.1 });
+
+  const largeSmoothX = useSpring(mouseX, { stiffness: 600, damping: 35, mass: 0.2 });
+  const largeSmoothY = useSpring(mouseY, { stiffness: 600, damping: 35, mass: 0.2 });
 
   useEffect(() => {
     const updateMousePosition = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
     };
 
     const handleMouseOver = (e: MouseEvent) => {
@@ -26,40 +37,44 @@ export default function CustomCursor() {
       }
     };
 
-    window.addEventListener('mousemove', updateMousePosition);
-    window.addEventListener('mouseover', handleMouseOver);
+    window.addEventListener('mousemove', updateMousePosition, { passive: true });
+    window.addEventListener('mouseover', handleMouseOver, { passive: true });
 
     return () => {
       window.removeEventListener('mousemove', updateMousePosition);
       window.removeEventListener('mouseover', handleMouseOver);
     };
-  }, []);
+  }, [mouseX, mouseY]);
 
   return (
     <>
       <motion.div
         className="fixed top-0 left-0 w-8 h-8 rounded-full pointer-events-none z-[9999] border-2 border-pink-400"
         style={{
+          x: largeSmoothX,
+          y: largeSmoothY,
+          translateX: '-50%',
+          translateY: '-50%',
           boxShadow: '0 0 15px rgba(233,30,99,0.3)',
-          backgroundColor: 'rgba(252,228,236,0.5)'
+          willChange: 'transform'
         }}
         animate={{
-          x: mousePosition.x - 16,
-          y: mousePosition.y - 16,
           scale: isHovering ? 1.5 : 1,
           borderColor: isHovering ? '#e91e63' : '#f48fb1',
           backgroundColor: isHovering ? 'rgba(244,143,177,0.4)' : 'rgba(252,228,236,0.5)'
         }}
-        transition={{ type: 'spring', stiffness: 800, damping: 35, mass: 0.2 }}
+        transition={{ duration: 0.2 }}
       />
       <motion.div
         className="fixed top-0 left-0 w-3 h-3 bg-pink-500 rounded-full pointer-events-none z-[10000]"
-        style={{ boxShadow: '0 0 8px rgba(233,30,99,0.6)' }}
-        animate={{
-          x: mousePosition.x - 6,
-          y: mousePosition.y - 6,
+        style={{ 
+          x: smoothX, 
+          y: smoothY,
+          translateX: '-50%',
+          translateY: '-50%',
+          boxShadow: '0 0 8px rgba(233,30,99,0.6)',
+          willChange: 'transform'
         }}
-        transition={{ type: 'spring', stiffness: 1500, damping: 40, mass: 0.05 }}
       />
     </>
   );
