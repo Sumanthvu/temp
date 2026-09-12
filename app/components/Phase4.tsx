@@ -11,6 +11,7 @@ export default function Phase4({ onNext }: Phase4Props) {
   const [noPos, setNoPos] = useState({ x: 270, y: 230 });
   const [noCount, setNoCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [isLetterOut, setIsLetterOut] = useState(false);
 
   const dodge = useCallback(() => {
     const margin = 100;
@@ -40,6 +41,14 @@ export default function Phase4({ onNext }: Phase4Props) {
     : noCount < 6 ? 'You really tried… but it keeps running 🏃‍♂️💨'
     : 'It\'s hopeless! Just say Yes! 🥺💕';
 
+  const openEnvelope = () => {
+    if (isOpen) return;
+    setIsOpen(true);
+    setTimeout(() => {
+      setIsLetterOut(true);
+    }, 600); // wait for flap to open before sliding letter out
+  };
+
   return (
     <motion.div
       className="min-h-screen flex items-center justify-center relative z-10 px-5 py-8"
@@ -49,21 +58,20 @@ export default function Phase4({ onNext }: Phase4Props) {
       transition={{ duration: 0.65 }}
     >
       <AnimatePresence>
-        {!isOpen && (
+        {!isLetterOut && (
           <motion.div
-            key="envelope"
-            className="cursor-pointer"
-            onClick={() => setIsOpen(true)}
+            key="3d-envelope"
+            className="relative cursor-pointer"
+            onClick={openEnvelope}
             initial={{ scale: 0.8, y: 50, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
-            exit={{ scale: 1.1, opacity: 0, transition: { duration: 0.5 } }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            exit={{ scale: 1.1, opacity: 0, y: 100, transition: { duration: 0.5 } }}
+            whileHover={!isOpen ? { scale: 1.05, rotateZ: [0, -2, 2, 0] } : {}}
             style={{
               width: '100%',
-              maxWidth: '400px',
-              height: '250px',
-              position: 'relative',
+              maxWidth: '450px',
+              height: '280px',
+              perspective: '1200px', // Crucial for 3D flap
             }}
           >
             {/* Back of envelope */}
@@ -73,195 +81,239 @@ export default function Phase4({ onNext }: Phase4Props) {
                 inset: 0,
                 background: '#f8bbd0',
                 borderRadius: '16px',
-                boxShadow: '0 20px 40px rgba(233,30,99,0.2)',
+                boxShadow: '0 25px 50px -12px rgba(233,30,99,0.25)',
               }}
             />
-            {/* Letter peek */}
-            <div
+            
+            {/* Letter resting inside (animates up when isOpen) */}
+            <motion.div
               style={{
                 position: 'absolute',
-                top: '20px',
-                left: '20px',
-                right: '20px',
-                bottom: '20px',
-                background: '#fff',
+                top: '15px',
+                left: '25px',
+                right: '25px',
+                bottom: '25px',
+                background: '#fffdf9',
                 borderRadius: '8px',
+                border: '1px solid #fce4ec',
+                boxShadow: '0 -10px 20px rgba(0,0,0,0.05)',
+                zIndex: 5
               }}
-            />
+              animate={isOpen ? { y: -200, opacity: 0 } : { y: 0, opacity: 1 }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+            >
+               <div style={{ height: '30px', background: 'linear-gradient(135deg,#f8bbd0 0%,#fce4ec 50%,#f48fb1 100%)', borderRadius: '8px 8px 0 0' }} />
+            </motion.div>
+
             {/* Front folds */}
             <div
               style={{
                 position: 'absolute',
                 inset: 0,
                 background: '#f48fb1',
-                clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 50% 60%, 0 0)',
+                clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 50% 65%, 0 0)',
                 borderRadius: '16px',
+                zIndex: 10
               }}
             />
-            {/* Flap closed */}
-            <div
+            
+            {/* 3D Animated Flap */}
+            <motion.div
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 right: 0,
-                height: '60%',
+                height: '65%',
                 background: '#f06292',
                 clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
                 borderRadius: '16px 16px 0 0',
+                transformOrigin: 'top',
+                zIndex: isOpen ? 4 : 20, // moves behind the letter once open
+                backfaceVisibility: 'hidden',
               }}
+              animate={isOpen ? { rotateX: 180 } : { rotateX: 0 }}
+              transition={{ duration: 0.6, type: 'spring', stiffness: 100, damping: 15 }}
             />
-            {/* Seal / Heart */}
-            <motion.div
-              style={{
-                position: 'absolute',
-                top: '45%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                fontSize: '3rem',
-                zIndex: 10,
-              }}
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-            >
-              💖
-            </motion.div>
-            
-            <motion.p
-              style={{
-                position: 'absolute',
-                bottom: '-40px',
-                left: '0',
-                right: '0',
-                textAlign: 'center',
-                color: '#e91e63',
-                fontFamily: 'Inter',
-                fontWeight: 600,
-                fontSize: '1.1rem',
-              }}
-              animate={{ y: [0, 5, 0] }}
-              transition={{ repeat: Infinity, duration: 2 }}
-            >
-              Tap to open your mail! ✨
-            </motion.p>
-          </motion.div>
-        )}
 
-        {isOpen && (
-          <motion.div
-            key="letter"
-            className="glass-card rounded-3xl w-full overflow-hidden relative"
-            style={{ maxWidth: '480px', zIndex: 20 }}
-            initial={{ scale: 0.5, y: 150, opacity: 0 }}
-            animate={{ scale: 1, y: 0, opacity: 1 }}
-            transition={{ type: 'spring', stiffness: 100, damping: 20, delay: 0.3 }}
-          >
-            {/* Banner */}
-            <div
-              style={{
-                background: 'linear-gradient(135deg,#f8bbd0 0%,#fce4ec 50%,#f48fb1 100%)',
-                padding: 'clamp(20px, 4vw, 36px)',
-                textAlign: 'center',
-              }}
-            >
-              <motion.div
-                className="text-5xl select-none mb-2"
-                animate={{ scale: [1, 1.14, 1], rotate: [0, 6, -6, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
-              >
-                🌹
-              </motion.div>
-              <p
-                className="font-inter text-pink-600 uppercase tracking-widest"
-                style={{ fontSize: '0.7rem', fontWeight: 600 }}
-              >
-                ✨ An Invitation ✨
-              </p>
-            </div>
-
-            {/* Gradient rule */}
-            <div style={{ height: 3, background: 'linear-gradient(90deg,#f48fb1,#e91e63,#f48fb1)' }} />
-
-            {/* Body */}
-            <div
-              className="text-center"
-              style={{ padding: 'clamp(28px, 5vw, 52px)' }}
-            >
-              {/* Floating row */}
-              <div className="flex justify-center gap-2 mb-5 select-none">
-                {['🌸', '💕', '🌸'].map((e, i) => (
-                  <motion.span
-                    key={i}
-                    style={{ fontSize: '1.5rem' }}
-                    animate={{ y: [0, -7, 0] }}
-                    transition={{ delay: i * 0.25, duration: 2, repeat: Infinity }}
-                  >
-                    {e}
-                  </motion.span>
-                ))}
-              </div>
-
-              <p
-                className="font-inter text-pink-400 uppercase tracking-widest mb-4"
-                style={{ fontSize: '0.7rem', fontWeight: 600 }}
-              >
-                Dear Zuzu
-              </p>
-
-              <h2
-                className="font-playfair text-gray-700 leading-snug mb-4"
-                style={{ fontSize: 'clamp(1.6rem, 5.5vw, 2.6rem)' }}
-              >
-                Will you come on a{' '}
-                <span className="gradient-text font-bold italic">date</span>{' '}
-                with me?
-              </h2>
-
-              <p
-                className="font-dancing text-pink-500 mb-8"
-                style={{ fontSize: 'clamp(1.3rem, 4vw, 1.9rem)' }}
-              >
-                Let&apos;s go eat Mandi together 🍖✨
-              </p>
-
-              {/* Divider */}
-              <div className="flex items-center gap-3 mb-8">
-                <div style={{ flex: 1, height: 1, background: '#fce4ec' }} />
-                <span style={{ color: '#f48fb1', fontSize: '1rem' }}>💕</span>
-                <div style={{ flex: 1, height: 1, background: '#fce4ec' }} />
-              </div>
-
-              {/* Yes button */}
-              <motion.button
-                id="phase4-yes"
-                className="btn-yes"
-                style={{ fontSize: '1.08rem', padding: '16px 56px' }}
-                onClick={onNext}
-                whileHover={{ scale: 1.07 }}
-                whileTap={{ scale: 0.95 }}
-                animate={{
-                  boxShadow: [
-                    '0 6px 24px rgba(233,30,99,0.38)',
-                    '0 6px 38px rgba(233,30,99,0.65)',
-                    '0 6px 24px rgba(233,30,99,0.38)',
-                  ],
-                }}
-                transition={{ duration: 2.2, repeat: Infinity }}
-              >
-                Yes, I&apos;d love to! 💕
-              </motion.button>
-
-              {/* Hint */}
-              {hintText && (
-                <motion.p
-                  className="font-inter text-pink-400 mt-5"
-                  style={{ fontSize: '0.78rem' }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.8 }}
+            {/* Wax Seal - breaks apart/fades on open */}
+            <AnimatePresence>
+              {!isOpen && (
+                <motion.div
+                  style={{
+                    position: 'absolute',
+                    top: '55%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '70px',
+                    height: '70px',
+                    background: '#c2185b',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+                    border: '3px solid #ad1457',
+                    zIndex: 25,
+                  }}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: [1, 1.05, 1], boxShadow: ['0 4px 10px rgba(0,0,0,0.2)', '0 6px 15px rgba(233,30,99,0.5)', '0 4px 10px rgba(0,0,0,0.2)'] }}
+                  exit={{ scale: 2, opacity: 0, filter: 'blur(10px)' }}
+                  transition={{ duration: 0.5 }}
                 >
-                  {hintText}
+                  <span style={{ fontSize: '2rem' }}>💖</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            <AnimatePresence>
+              {!isOpen && (
+                <motion.p
+                  style={{
+                    position: 'absolute',
+                    bottom: '-45px',
+                    left: '0',
+                    right: '0',
+                    textAlign: 'center',
+                    color: '#d81b60',
+                    fontFamily: 'Inter',
+                    fontWeight: 700,
+                    fontSize: '1.2rem',
+                    textShadow: '0 2px 4px rgba(255,255,255,0.8)'
+                  }}
+                  animate={{ y: [0, 5, 0] }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                >
+                  Tap to open! ✨
                 </motion.p>
               )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isLetterOut && (
+          <motion.div
+            key="letter-card"
+            className="glass-card rounded-3xl w-full overflow-hidden relative"
+            style={{ maxWidth: '480px', zIndex: 20 }}
+            initial={{ scale: 0.5, y: 150, opacity: 0, rotateX: 20 }}
+            animate={{ scale: 1, y: 0, opacity: 1, rotateX: 0 }}
+            transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+          >
+            {/* Glowing Backdrop inside card */}
+            <div className="absolute inset-0 z-0 bg-white/40 backdrop-blur-xl pointer-events-none" />
+
+            <div className="relative z-10">
+              {/* Banner */}
+              <div
+                style={{
+                  background: 'linear-gradient(135deg,#f8bbd0 0%,#fce4ec 50%,#f48fb1 100%)',
+                  padding: 'clamp(20px, 4vw, 36px)',
+                  textAlign: 'center',
+                }}
+              >
+                <motion.div
+                  className="text-5xl select-none mb-2"
+                  animate={{ scale: [1, 1.14, 1], rotate: [0, 6, -6, 0] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  🌹
+                </motion.div>
+                <p
+                  className="font-inter text-pink-600 uppercase tracking-widest"
+                  style={{ fontSize: '0.7rem', fontWeight: 600 }}
+                >
+                  ✨ An Invitation ✨
+                </p>
+              </div>
+
+              {/* Gradient rule */}
+              <div style={{ height: 3, background: 'linear-gradient(90deg,#f48fb1,#e91e63,#f48fb1)' }} />
+
+              {/* Body */}
+              <div
+                className="text-center"
+                style={{ padding: 'clamp(28px, 5vw, 52px)' }}
+              >
+                {/* Floating row */}
+                <div className="flex justify-center gap-2 mb-5 select-none">
+                  {['🌸', '💕', '🌸'].map((e, i) => (
+                    <motion.span
+                      key={i}
+                      style={{ fontSize: '1.5rem' }}
+                      animate={{ y: [0, -7, 0] }}
+                      transition={{ delay: i * 0.25, duration: 2, repeat: Infinity }}
+                    >
+                      {e}
+                    </motion.span>
+                  ))}
+                </div>
+
+                <p
+                  className="font-inter text-pink-400 uppercase tracking-widest mb-4"
+                  style={{ fontSize: '0.7rem', fontWeight: 600 }}
+                >
+                  Dear Zuzu
+                </p>
+
+                <h2
+                  className="font-playfair text-gray-700 leading-snug mb-4"
+                  style={{ fontSize: 'clamp(1.6rem, 5.5vw, 2.6rem)' }}
+                >
+                  Will you come on a{' '}
+                  <span className="gradient-text font-bold italic drop-shadow-sm">date</span>{' '}
+                  with me?
+                </h2>
+
+                <p
+                  className="font-dancing text-pink-500 mb-8"
+                  style={{ fontSize: 'clamp(1.3rem, 4vw, 1.9rem)' }}
+                >
+                  Let&apos;s go eat Mandi together 🍖✨
+                </p>
+
+                {/* Divider */}
+                <div className="flex items-center gap-3 mb-8">
+                  <div style={{ flex: 1, height: 1, background: '#fce4ec' }} />
+                  <span style={{ color: '#f48fb1', fontSize: '1rem' }}>💕</span>
+                  <div style={{ flex: 1, height: 1, background: '#fce4ec' }} />
+                </div>
+
+                {/* Yes button */}
+                <motion.button
+                  id="phase4-yes"
+                  className="btn-yes relative overflow-hidden"
+                  style={{ fontSize: '1.08rem', padding: '16px 56px' }}
+                  onClick={onNext}
+                  whileHover={{ scale: 1.07 }}
+                  whileTap={{ scale: 0.95 }}
+                  animate={{
+                    boxShadow: [
+                      '0 6px 24px rgba(233,30,99,0.38)',
+                      '0 6px 38px rgba(233,30,99,0.65)',
+                      '0 6px 24px rgba(233,30,99,0.38)',
+                    ],
+                  }}
+                  transition={{ duration: 2.2, repeat: Infinity }}
+                >
+                  <span className="relative z-10">Yes, I&apos;d love to! 💕</span>
+                </motion.button>
+
+                {/* Hint */}
+                {hintText && (
+                  <motion.p
+                    className="font-inter text-pink-400 mt-5"
+                    style={{ fontSize: '0.78rem' }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.8 }}
+                  >
+                    {hintText}
+                  </motion.p>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
@@ -269,7 +321,7 @@ export default function Phase4({ onNext }: Phase4Props) {
 
       {/* ── Floating "No" button ── */}
       <AnimatePresence>
-        {isOpen && (
+        {isLetterOut && (
           <motion.button
             key="btn-no"
             id="phase4-no"
